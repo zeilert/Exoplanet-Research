@@ -1,30 +1,3 @@
-# Exoplanet-Research
-My name is Zac
-This code, RETrO, by Paul Dalba, has been repaired to work in Python v3
-"""
-Name
-----
-shoulder.py
-Description
------------
-RETrO: Refraction in Exoplanet Transit Observations
-This script models the secondary stellar image in an exoplanetary atmosphere due to 
-refraction as a function of the angle the planet sweeps out in orbit from mid-transit.
-This therefore simulates the full structure of the shoulder feature. It only does this
-for one side (ingress or egress).
-Input
------
-Requires input file to specify the stellar-orbital-planetary parameters.
-Output
-------
-Various data files and pickle files describing the refraction effect for this particular
-system.
-Author
-------
-P. A. Dalba --- Boston University
-pdalba -at- bu -dot- edu
-"""
-#-----------------------------------------------------------------------------------------
 #Import various math, science, and plotting packages.
 import numpy
 from numpy import *   #Note, numpy functions will not be explicitly called out
