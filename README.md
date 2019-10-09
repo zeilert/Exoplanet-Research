@@ -1,6 +1,5 @@
-#Import various math, science, and plotting packages.
 import numpy
-from numpy import *   #Note, numpy functions will not be explicitly called out
+from numpy import *
 import scipy
 from scipy.interpolate import interp1d
 from scipy.integrate import quad
@@ -9,27 +8,24 @@ from scipy.optimize import minimize_scalar, fsolve
 import os
 import datetime
 import pickle
-import matplotlib    #Plotting only occurs if plotting is turned 'on'
+import matplotlib    
 import matplotlib.pyplot
 from matplotlib.pyplot import *  
 from matplotlib import colors, cm
 
-#Import other RETrO modules
+
 import planet_mass_radius
 import planet_atmosphere
 from planet_atmosphere import *
 import retro_rk4
-#-----------------------------------------------------------------------------------------
+
 	
 
-#-----------------------------------------------------------------------------------------
+
 #Set path information
 path = './'
-#-----------------------------------------------------------------------------------------
 
 
-#Define fundamental constants - All physical units in this script will be MKS.
-#-----------------------------------------------------------------------------------------
 k_B     = 1.38065e-23   #mks
 m_H     = 1.67353e-27   #kg
 G       = 6.67408e-11   #mks
@@ -37,11 +33,7 @@ AU      = 1.49598e11    #m
 R_earth = 6.371e6       #m
 M_earth = 5.9723e24     #kg
 R_sun   = 6.957e8       #m
-#-----------------------------------------------------------------------------------------
 
-
-#Read the inputs that define this atmosphere
-#-----------------------------------------------------------------------------------------
 with open(path+'input.txt','r') as input_file:
 	while 1:
 		#Skip any header lines
@@ -56,67 +48,51 @@ with open(path+'input.txt','r') as input_file:
 		if 'ATM' in line: atm_type = split_line[-1]
 		if not line: break
 input_file.close()
-#-----------------------------------------------------------------------------------------
 
 
-#Calculate other necessary aspects of the atmosphere based on the input parameters.
-#-----------------------------------------------------------------------------------------
-#Convert units of input parameters
+
 semimajor *= AU
 M_p *= M_earth
 R_star *= R_sun
 
-#Get the planet radius in m
+
 z_ref = planet_mass_radius.get_zref(M_p)	
 	 	
-#Calculate the gravitational acceleration
+
 g = G*M_p/z_ref**2   #m/s^2
 
-#Get mu and nu_ref from atmosphere module
+
 mu, nu_ref = get_mu_nuref(atm_type)
 
-#Atmospheric pressure scale height. 
 H = k_B*T_atm/(mu*g)    #m
-#Atmospheric 1 bar (1e5 Pa) reference number density	
+
 nd_ref = 1e5/(k_B*T_atm)  #m^-3
-#STP number density (from old STP when the refractivities were measured)
+
 nd_STP = 101325./(k_B*273.15)
-#Since both the number density and nu profiles share the same exponential factor, the 
-# ratio of the densities will equal the ratio of the refractivities. 
+
 nu_ref *= nd_ref/nd_STP
-#-----------------------------------------------------------------------------------------
 
-
-#Other parameters required to run the model
-#-----------------------------------------------------------------------------------------
-#Other orbital parameters, either held constant or arbitrary
 ecc = 0.
 theta_peri = 0.*(pi/180.)  #longitude of periastron, rad
 n_theta0 = 4.   #Number of theta0 angles to cover
 n_orbit_steps = 50   #Number of orbital steps to take
 
-#Other atmosphere parameters, either held constant or arbitrary.
+
 abs_cross_sec = 0.   #m^2, ignore absorption
 
-#Ray tracing
+
 z_top = z_ref+20.*H  #altitude where ray path integration begins
 ds = 0.1*H   #step size for ray path integration
 n_rotations = 100  #number of times the ray tracing plane is rotated (half crescent)
 
-#These parameters controlled the initial ray separation and how it changes. Each ray is 
-# some delta-y below the one above it, and if a ray experiences critical refraction, the
-# delta-y is reduced by some fraction; this is one iteration. This will assure that low
-# altitudes are more finely sampled. The delta-y listed here is the starting value. It 
-# will be altered. This will continue until the rays have reached bending angles great
-# enough for all the interpolation to occur.
+
 delta_y_init = H/4.
 delta_y_cut = 4.
 
-#Turn plotting on or off here.
+
 plotting = 'off'
 
-#For this parameter space search, always assume spherical symmetry. Much of this code
-# relies upon this assumption.
+
 sphere_sym = 'yes'
 #-----------------------------------------------------------------------------------------
 
